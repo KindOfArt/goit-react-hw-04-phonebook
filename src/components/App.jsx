@@ -1,22 +1,15 @@
-// import { Component } from 'react';
 import Section from './Section/Section';
 import Form from './Section/Form/Form';
 import ContactsList from './Section/ContactsList/ContactsList';
 import Filter from './Section/Filter/Filter';
 import { useState } from 'react';
-import { useEffect } from 'react';
+import useLocalStorage from './hooks/useLocalStorage';
 
 const CONTACTS = 'contacts';
 
 function App() {
-  const [contacts, setContacts] = useState(
-    () => JSON.parse(window.localStorage.getItem(CONTACTS)) ?? []
-  );
+  const [contacts, setContacts] = useLocalStorage(CONTACTS, []);
   const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    window.localStorage.setItem(CONTACTS, JSON.stringify(contacts));
-  }, [contacts]);
 
   const addToContactList = newContact => {
     const { name: newName } = newContact;
