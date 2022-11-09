@@ -1,18 +1,17 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 
-const Section = ({ title, children }) => {
+function Section({ title, children }) {
   return (
-    <section>
+    <div>
       <h2>{title}</h2>
       {children}
-    </section>
+    </div>
   );
-};
-
-export default Section;
+}
 
 Section.propTypes = {
   title: PropTypes.string.isRequired,
   children: PropTypes.oneOfType([PropTypes.bool, PropTypes.element]).isRequired,
 };
+
+export default Section;

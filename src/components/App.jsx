@@ -1,52 +1,60 @@
+// import { Component } from 'react';
 import Section from './Section/Section';
-import Form from './Form/Form';
-import ContactsList from './ContactsList/ContactsList';
-import appStyles from './App.module.css';
-import React, { useState } from 'react';
-import Filter from './Filter/Filter';
+import Form from './Section/Form/Form';
+import ContactsList from './Section/ContactsList/ContactsList';
+import Filter from './Section/Filter/Filter';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
-const App = props => {
-  const [contactsList, setContactsList] = useState([]);
+const CONTACTS = 'contacts';
+
+function App() {
+  const [contacts, setContacts] = useState(
+    () => JSON.parse(window.localStorage.getItem(CONTACTS)) ?? []
+  );
   const [filter, setFilter] = useState('');
 
-  const getFilterValue = e => {
-    setFilter(e.currentTarget.value);
+  useEffect(() => {
+    window.localStorage.setItem(CONTACTS, JSON.stringify(contacts));
+  }, [contacts]);
+
+  const addToContactList = newContact => {
+    const { name: newName } = newContact;
+    const normalizedNewName = newName.toLowerCase();
+
+    !contacts.find(
+      ({ name: prevName }) => prevName.toLowerCase() === normalizedNewName
+    )
+      ? setContacts(prev => [...prev, newContact])
+      : alert(`${newName} is already in contacts`);
   };
 
-  const findContact = () => {
-    const normilizedFilter = filter.toLowerCase();
+  const filterContacts = e => setFilter(e.currentTarget.value);
 
-    return contactsList.filter(({ name }) =>
-      name.toLowerCase().includes(normilizedFilter)
+  const findContact = () => {
+    const normilizedFilterValue = filter.toLowerCase();
+
+    return contacts.filter(({ name }) =>
+      name.toLowerCase().includes(normilizedFilterValue)
     );
   };
 
-  const addNewContact = contact => {
-    const { name } = contact;
-    const normilizedName = name.toLowerCase();
+  const deleteContact = contactId =>
+    setContacts(contacts.filter(({ id }) => id !== contactId));
 
-    !contactsList.find(
-      ({ name: prevName }) => prevName.toLowerCase() === normilizedName
-    )
-      ? setContactsList(prev => [...prev, contact])
-      : alert(`${name} is already in contacts!`);
-  };
-
-  const deleteContact = contactId => {
-    setContactsList(contactsList.filter(({ id }) => id !== contactId));
-  };
+  const foundContact = findContact();
 
   return (
-    <div className={appStyles.app}>
+    <div>
       <Section title="Phonebook">
-        <Form addToContactList={addNewContact}></Form>
+        <Form addToContactList={addToContactList} />
       </Section>
       <Section title="Contacts">
-        {contactsList.length > 0 && (
+        {contacts.length > 0 && (
           <>
-            <Filter value={filter} onChange={getFilterValue} />
+            <Filter value={filter} onChange={filterContacts} />
             <ContactsList
-              foundContact={findContact()}
+              foundContact={foundContact}
               deleteContact={deleteContact}
             />
           </>
@@ -54,6 +62,6 @@ const App = props => {
       </Section>
     </div>
   );
-};
+}
 
 export default App;
